@@ -36,3 +36,24 @@ SELECT u.id as id, u.name as customer_name, sum(s.quantity) as quantity_sold, su
 FROM sales s
 INNER JOIN users u on s.uid=u.id
 GROUP BY u.id, u.name
+
+-- CUSTOMER_PRODUCT
+DROP TABLE IF EXISTS pcustomer_product;
+
+CREATE TABLE pcustomer_product
+(
+  customer_id serial NOT NULL,
+  product_id serial NOT NULL,
+  customer_name text NOT NULL,
+  product_sku text NOT NULL,
+  quantity_sold integer NOT NULL,
+  dollar_value integer NOT NULL,
+  CONSTRAINT pcustomer_product_pkey PRIMARY KEY (customer_id,product_id)
+);
+
+INSERT INTO pcustomer_product
+SELECT u.id as customer_id, p.id as product_id, u.name as customer_name, p.sku as product_sku, sum(s.quantity) as quantity_sold, sum(s.price) as dollar_value
+FROM sales s
+INNER JOIN users u on s.uid=u.id
+INNER JOIN products p on s.pid=p.id
+GROUP BY u.id, p.id, u.name, p.sku
