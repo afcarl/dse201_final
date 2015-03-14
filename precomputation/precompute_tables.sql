@@ -35,7 +35,7 @@ INSERT INTO pcustomer
 SELECT u.id as id, u.name as customer_name, sum(s.quantity) as quantity_sold, sum(s.price) as dollar_value
 FROM sales s
 INNER JOIN users u on s.uid=u.id
-GROUP BY u.id, u.name
+GROUP BY u.id, u.name;
 
 -- CUSTOMER_PRODUCT
 DROP TABLE IF EXISTS pcustomer_product;
@@ -56,7 +56,7 @@ SELECT u.id as customer_id, p.id as product_id, u.name as customer_name, p.sku a
 FROM sales s
 INNER JOIN users u on s.uid=u.id
 INNER JOIN products p on s.pid=p.id
-GROUP BY u.id, p.id, u.name, p.sku
+GROUP BY u.id, p.id, u.name, p.sku;
 
 -- CATEGORY_STATE
 DROP TABLE IF EXISTS pcategory_state;
