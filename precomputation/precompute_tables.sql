@@ -57,3 +57,26 @@ FROM sales s
 INNER JOIN users u on s.uid=u.id
 INNER JOIN products p on s.pid=p.id
 GROUP BY u.id, p.id, u.name, p.sku
+
+-- CATEGORY_STATE
+DROP TABLE IF EXISTS pcategory_state;
+
+CREATE TABLE pcategory_state
+(
+  category_id serial NOT NULL,
+  state_id serial NOT NULL,
+  category_name text NOT NULL,
+  state_name text NOT NULL,
+  quantity_sold integer NOT NULL,
+  dollar_value integer NOT NULL,
+  CONSTRAINT pcategory_state_pkey PRIMARY KEY (category_id, state_id)
+);
+
+INSERT INTO pcategory_state
+SELECT c.id as category_id, st.id as state_id, c.name as category_name, st.name as state_name, sum(sl.quantity) as quantity_sold, sum(sl.price) as dollar_value
+FROM sales sl
+INNER JOIN users u ON sl.uid = u.id
+INNER JOIN states st ON u.state = st.id
+INNER JOIN products p ON p.id = sl.pid
+INNER JOIN categories c ON c.id = p.cid
+GROUP BY c.id, c.name, st.id, st.name;
