@@ -64,3 +64,6 @@ CREATE TABLE pcategory_state
   dollar_value integer NOT NULL,
   CONSTRAINT pcategory_state_pkey PRIMARY KEY (category_id, state_id)
 );
+
+-- TODO INVESTIGATE COST OF JOIN WHEN QUERYING PRECOMPUTE TABLES
+-- DROP DENORMALIZED COLUMNS ACROSS
