@@ -4,21 +4,35 @@ DROP TRIGGER IF EXISTS t_update_pcategory_state on sales;
 CREATE OR REPLACE FUNCTION update_pcategory_state()
   RETURNS trigger AS
 $BODY$
+DECLARE
+	m_category_id integer;
+	m_category_name text;
+	m_state_id integer;
+	m_state_name text;
 BEGIN
 	
-	UPDATE pcategory_state 
+	-- Insert or update the summary row with the new values.
+	SELECT c.id, c.name INTO m_category_id, m_category_name
+	FROM categories c
+	INNER JOIN products p ON c.id=p.cid
+	WHERE p.id=NEW.pid;
+
+	SELECT st.id, st.name INTO m_state_id, m_state_name
+	FROM users u
+	INNER JOIN states st on u.state=st.id
+	WHERE u.id=NEW.uid
+
+    UPDATE pcategory_state 
 	SET quantity_sold=quantity_sold + NEW.quantity, dollar_value= dollar_value + NEW.price
-	WHERE category_id= (
-		SELECT c.id
-		FROM categories c
-		INNER JOIN products p ON c.id=p.cid
-		WHERE p.id=NEW.pid
-	) AND state_id= (
-		SELECT st.id
-		FROM users u
-		INNER JOIN states st on u.state=st.id
-		WHERE u.id=NEW.uid
-	);
+	WHERE category_id= m_category_id AND state_id= m_state_id;
+
+	IF NOT FOUND THEN
+	    INSERT INTO pcategory_state(
+            category_id, state_id, category_name, state_name, quantity_sold, 
+            dollar_value)
+	    VALUES (m_category_id, m_state_id, m_category_name, m_state_name, NEW.quantity, 
+	            NEW.price);
+	END IF;
 	
 	RETURN NULL;
 END;
