@@ -1,0 +1,19 @@
+NOTICE:  Begin execute_trigger_test
+NOTICE:  Begin do_insert_compare
+NOTICE:  random_uid=256; random_pid=74; random_qty=4; totalprice=2056
+NOTICE:  Fetch fields from snowflake relations
+NOTICE:  m_state_id=8
+NOTICE:  m_category_id=3
+NOTICE:  Fetch previous records for comparison
+NOTICE:  m_rec_prev_pcustomer=(256,user_256,33,15937)
+NOTICE:  m_rec_prev_pcategory_state=(3,8,category_3,Delaware,63,39553)
+NOTICE:  m_rec_prev_pcategory=(3,category_3,2086,1311705)
+NOTICE:  m_rec_prev_pcustomer_product=(,,,,,)
+NOTICE:  m_rec_prev_pstate=(8,Delaware,846,398955)
+NOTICE:  Executing insertion using uid=256; pid=74; qty=4; price=2056
+NOTICE:  Fetch current records for comparison
+NOTICE:  m_rec_new_pcustomer=(256,user_256,37,17993)
+NOTICE:  m_rec_new_pcategory_state=(3,8,category_3,Delaware,67,41609)
+NOTICE:  m_rec_new_pcategory=(3,category_3,2090,1313761)
+NOTICE:  m_rec_new_pcustomer_product=(256,74,user_256,SKU_74,4,2056)
+NOTICE:  m_rec_new_pstate=(8,Delaware,850,401011)
