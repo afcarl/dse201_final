@@ -24,7 +24,7 @@ BEGIN
 END;
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER t_update_pcategory_state AFTER INSERT OR UPDATE
+CREATE TRIGGER t_update_pcategory_state AFTER INSERT 
    ON sales FOR EACH ROW
    EXECUTE PROCEDURE public.update_pcategory_state();
 
@@ -49,7 +49,7 @@ BEGIN
 END;
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER t_update_pstate AFTER INSERT OR UPDATE
+CREATE TRIGGER t_update_pstate AFTER INSERT 
    ON sales FOR EACH ROW
    EXECUTE PROCEDURE public.update_pstate();
 
@@ -97,14 +97,19 @@ CREATE OR REPLACE FUNCTION pcategory_trigger_f()
 		UPDATE 	pcategory
 		SET 	quantity_sold = quantity_sold + NEW.quantity,
 				dollar_value = dollar_value + NEW.price
-		WHERE 	id = NEW.category_id;
+		WHERE 	id = (
+			SELECT c.id
+			FROM categories c
+			INNER JOIN products p on c.id=p.cid
+			WHERE p.id=NEW.pid
+		);
 		RETURN NULL;
 	END;
 $BODY$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS pcategory_trigger ON pcategory_state;
+DROP TRIGGER IF EXISTS pcategory_trigger ON sales;
 
 CREATE TRIGGER pcategory_trigger
-AFTER INSERT ON pcategory_state
+AFTER INSERT ON sales
     FOR EACH ROW EXECUTE PROCEDURE pcategory_trigger_f();
 
