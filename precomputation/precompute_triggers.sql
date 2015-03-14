@@ -108,11 +108,11 @@ CREATE OR REPLACE FUNCTION pcustomer_product_trigger_f()
 		m_customer_id	integer;
 		m_customer_name	text;
 		m_product_id	integer;
-		m_product_name	text;
+		m_product_sku	text;
     BEGIN
     
 		-- Insert or update the summary row with the new values.
-		SELECT p.id, p.name INTO m_product_id, m_product_name
+		SELECT p.id, p.sku INTO m_product_id, m_product_sku
 		FROM products p
 		WHERE p.id=NEW.pid;
 
@@ -126,8 +126,8 @@ CREATE OR REPLACE FUNCTION pcustomer_product_trigger_f()
 		WHERE 	customer_id = m_customer_id AND
 				product_id = m_product_id;
 		IF NOT FOUND THEN
-			INSERT INTO pcustomer_product(customer_id, customer_name, product_id, product_name, quantity_sold, dollar_value)
-			VALUES (m_customer_id, m_customer_name, m_product_id, m_product_name, NEW.quantity, NEW.price);
+			INSERT INTO pcustomer_product(customer_id, customer_name, product_id, product_sku, quantity_sold, dollar_value)
+			VALUES (m_customer_id, m_customer_name, m_product_id, m_product_sku, NEW.quantity, NEW.price);
 		END IF;
 		RETURN NULL;
 	END;
