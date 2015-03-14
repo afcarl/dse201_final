@@ -1,0 +1,23 @@
+NOTICE:  Begin execute_trigger_insert_test
+NOTICE:  Executing insertion using new_state_id=52; new_state_name=NewState52
+NOTICE:  Executing insertion using new_user_id=1011; new_user_name=NewUser1011
+NOTICE:  Executing insertion using new_cat_id=12; new_cat_name=NewCategory12; new_cat_description=Description of NewCategory12
+NOTICE:  Executing insertion using new_prod_id=102; new_prod_name=NewProduct102; new_prod_sku=SQU1234NewProduct102
+NOTICE:  Begin do_insert_compare
+NOTICE:  random_uid=1011; random_pid=102; random_qty=2; totalprice=490
+NOTICE:  Fetch fields from snowflake relations
+NOTICE:  m_state_id=52
+NOTICE:  m_category_id=12
+NOTICE:  Fetch previous records for comparison
+NOTICE:  m_rec_prev_pcustomer=(,,,)
+NOTICE:  m_rec_prev_pcategory_state=(,,,,,)
+NOTICE:  m_rec_prev_pcategory=(,,,)
+NOTICE:  m_rec_prev_pcustomer_product=(,,,,,)
+NOTICE:  m_rec_prev_pstate=(,,,)
+NOTICE:  Executing insertion using uid=1011; pid=102; qty=2; price=490
+NOTICE:  Fetch current records for comparison
+NOTICE:  m_rec_new_pcustomer=(1011,NewUser1011,2,490)
+NOTICE:  m_rec_new_pcategory_state=(12,52,NewCategory12,NewState52,2,490)
+NOTICE:  m_rec_new_pcategory=(12,NewCategory12,2,490)
+NOTICE:  m_rec_new_pcustomer_product=(1011,102,NewUser1011,SQU1234NewProduct102,2,490)
+NOTICE:  m_rec_new_pstate=(52,NewState52,2,490)
