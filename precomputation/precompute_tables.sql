@@ -65,5 +65,8 @@ CREATE TABLE pcategory_state
   CONSTRAINT pcategory_state_pkey PRIMARY KEY (category_id, state_id)
 );
 
+-- TODO INVESTIGATE INDEXES ON pcategory and pcustomer (dollar_value)
+-- for improving ORDER BY dollar_value DESC, LIMIT 20 queries 
+
 -- TODO INVESTIGATE COST OF JOIN WHEN QUERYING PRECOMPUTE TABLES
 -- DROP DENORMALIZED COLUMNS ACROSS
