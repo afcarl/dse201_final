@@ -4,7 +4,8 @@
 
 CREATE OR REPLACE FUNCTION timer_test(user_name text)
   RETURNS void AS
-$BODY$DECLARE
+$BODY$
+DECLARE
    m_cursor refcursor;
    m_rec_cursor RECORD;
    StartTime   timestamptz;
