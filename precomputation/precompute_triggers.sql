@@ -63,7 +63,7 @@ BEGIN
 	WHERE id=m_state_id;
 	
 	IF NOT FOUND THEN
-		INSERT INTO pstate(id, name, quantity_sold, dollar_value)
+		INSERT INTO pstate(id, state_name, quantity_sold, dollar_value)
 		VALUES (m_state_id, m_state_name, NEW.quantity, NEW.price);
 	END IF;
 	
@@ -85,7 +85,7 @@ CREATE OR REPLACE FUNCTION pcustomer_trigger_f()
 		WHERE 	id = NEW.uid;
 	
 		IF NOT FOUND THEN
-			INSERT INTO pcustomer(id, name, quantity_sold, dollar_value)
+			INSERT INTO pcustomer(id, customer_name, quantity_sold, dollar_value)
 			SELECT id, name, NEW.quantity, NEW.price
 			FROM users u
 			WHERE u.id = NEW.uid;
