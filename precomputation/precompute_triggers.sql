@@ -89,3 +89,22 @@ DROP TRIGGER IF EXISTS pcustomer_product_trigger ON sales;
 CREATE TRIGGER pcustomer_product_trigger
 AFTER INSERT ON sales
     FOR EACH ROW EXECUTE PROCEDURE pcustomer_product_trigger_f();
+    
+-- TRIGGER FOR precomputed table pcategory
+CREATE OR REPLACE FUNCTION pcategory_trigger_f() 
+	RETURNS TRIGGER AS $BODY$
+    BEGIN
+		UPDATE 	pcategory
+		SET 	quantity_sold = quantity_sold + NEW.quantity,
+				dollar_value = dollar_value + NEW.price
+		WHERE 	id = NEW.category_id;
+		RETURN NULL;
+	END;
+$BODY$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS pcategory_trigger ON pcategory_state;
+
+CREATE TRIGGER pcategory_trigger
+AFTER INSERT ON pcategory_state
+    FOR EACH ROW EXECUTE PROCEDURE pcategory_trigger_f();
+
