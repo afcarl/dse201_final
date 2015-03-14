@@ -28,15 +28,15 @@ CREATE TRIGGER t_update_pcategory_state AFTER INSERT OR UPDATE
    ON sales FOR EACH ROW
    EXECUTE PROCEDURE public.update_pcategory_state();
 
--- TRIGGER FOR precomputed table pstates
-DROP TRIGGER IF EXISTS t_update_pstates on sales;
+-- TRIGGER FOR precomputed table pstate
+DROP TRIGGER IF EXISTS t_update_pstate on sales;
 
-CREATE OR REPLACE FUNCTION update_pstates()
+CREATE OR REPLACE FUNCTION update_pstate()
   RETURNS trigger AS
 $BODY$
 BEGIN
 
-	UPDATE pstates 
+	UPDATE pstate 
 	SET quantity_sold=quantity_sold + NEW.quantity, dollar_value= dollar_value + NEW.price
 	WHERE id= (
 		SELECT st.id
@@ -49,9 +49,9 @@ BEGIN
 END;
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER t_update_pstates AFTER INSERT OR UPDATE
+CREATE TRIGGER t_update_pstate AFTER INSERT OR UPDATE
    ON sales FOR EACH ROW
-   EXECUTE PROCEDURE public.update_pstates();
+   EXECUTE PROCEDURE public.update_pstate();
 
 -- TRIGGER FOR precomputed table pcustomer
 CREATE OR REPLACE FUNCTION pcustomer_trigger_f() 
