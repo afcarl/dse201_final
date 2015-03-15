@@ -42,100 +42,112 @@ CREATE OR REPLACE FUNCTION Workload (num_iterations integer)
 AS
    $$
    DECLARE
-      i           integer := 0;
-      j           integer := 0;
-      StartTime   timestamptz;
-      EndTime     timestamptz;
-      Delta       integer := 0;
-
-		m_cursor refcursor;
-		m_rec_cursor RECORD;
+      i           			integer := 0;
+      StartTime   			timestamptz;
+      EndTime     			timestamptz;
+      Query1StartTime		timestamptz;
+      Delta       			integer := 0;
 		
-		c_query_six CURSOR FOR (with top_20_categories as (
-			select id as category_id, category_name 
-			from pcategory
-			order by dollar_value desc
-			limit 20
-			), top_20_customers as (
-			select id as customer_id, customer_name
-			from pcustomer
-			order by dollar_value desc
-			limit 20
-			)
-			select tcat.category_name as top_category, tc.customer_name as top_customer, sum(s.quantity) as quantity_sold, sum(s.price) as dollar_value
-			from sales s
-			inner join top_20_customers as tc on s.uid=tc.customer_id
-			inner join products as p on s.pid=p.id
-			inner join top_20_categories as tcat on p.cid=tcat.category_id
-			group by tcat.category_name, tc.customer_name
-			order by dollar_value desc);
    BEGIN
 		StartTime := clock_timestamp ();
 
 		-- Start the timing of adding the cart items to DB.
 		-- Add 1000 carts of ten items each
-		FOR j IN 1 .. 1000
+		FOR i IN 1 .. 1000
 		LOOP
 			PERFORM Transactions();
 		END LOOP;
 		
-		EndTime := clock_timestamp ();
-		
-		Delta :=
-			round (
-			  1000
-			* (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
-		RAISE NOTICE 'Duration of batch buy in millisecs=%' , Delta;
-		
 		CHECKPOINT;
 		
-		StartTime := clock_timestamp ();
+		EndTime := clock_timestamp ();
+		Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
+		RAISE NOTICE 'Duration of batch buy in millisecs=%' , Delta;
 		
       -- Queries
 
       -- 1.   Show the total sales (quantity sold and dollar value) for each customer.
-		--OPEN m_cursor FOR 
+			Query1StartTime := clock_timestamp();
+			
 			PERFORM * 
 			FROM pcustomer;
-		--LOOP
-			--FETCH m_cursor INTO m_rec_cursor;
-			--EXIT WHEN m_rec_cursor IS NULL;
-			----RAISE NOTICE 'record=%', m_rec_cursor;
-			--RAISE NOTICE 'user_id=% user_name=% quantity_sold=%, dollar_value=%', m_rec_cursor.id, m_rec_cursor.customer_name, m_rec_cursor.quantity_sold, m_rec_cursor.dollar_value;
-		--END LOOP;
-		--CLOSE m_cursor;
+			EndTime := clock_timestamp ();
+			
+			Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM Query1StartTime)));
+			RAISE NOTICE 'Duration of query 1 in millisecs=%' , Delta;
 
       -- 2.   Show the total sales for each state.
-      
+			StartTime := clock_timestamp();
+			
 			PERFORM *
 			FROM pstate;
+			EndTime := clock_timestamp ();
+			
+			Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
+			RAISE NOTICE 'Duration of query 2 in millisecs=%' , Delta;
 
       -- 3.   Show the total sales for each product, for a given customer. Only products
       --      that were actually bought by the given customer. Order by dollar value.
+			StartTime := clock_timestamp();
+			
 			PERFORM  *
 			FROM pcustomer_product
 			WHERE pcustomer_product.customer_name = 'user_1'
 			ORDER BY dollar_value DESC;
+			
+			EndTime := clock_timestamp ();
+			Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
+			RAISE NOTICE 'Duration of query 3 in millisecs=%' , Delta;
 
       -- 4.   Show the total sales for each product and customer. Order by dollar value.
+			StartTime := clock_timestamp();
+			
 			PERFORM  *
 			FROM pcustomer_product
 			ORDER BY dollar_value DESC;
+			
+			EndTime := clock_timestamp ();
+			Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
+			RAISE NOTICE 'Duration of query 4 in millisecs=%' , Delta;
 
       -- 5.   Show the total sales for each product category and state.
+			StartTime := clock_timestamp();
+			
 			PERFORM *
 			FROM pcategory_state;
 			
+			EndTime := clock_timestamp ();
+			Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
+			RAISE NOTICE 'Duration of query 5 in millisecs=%' , Delta;
+			
 	  -- 6.  For each combination of the top 20 product categories and top 20 customers, return all combinations
-			open c_query_six;
-			close c_query_six;
-
-      EndTime := clock_timestamp ();
-      Delta :=
-         round (
-              1000
-            * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
-      RAISE NOTICE 'Duration of queries in millisecs=%' , Delta;
+			StartTime := clock_timestamp();
+			
+			PERFORM tcat.category_name as top_category, tc.customer_name as top_customer, sum(s.quantity) as quantity_sold, sum(s.price) as dollar_value
+			from sales s
+			inner join (
+				select id as customer_id, customer_name
+				from pcustomer
+				order by dollar_value desc
+				limit 20
+			) as tc on s.uid=tc.customer_id
+			inner join products as p on s.pid=p.id
+			inner join (
+				select id as category_id, category_name 
+				from pcategory
+				order by dollar_value desc
+				limit 20
+			) as tcat on p.cid=tcat.category_id
+			group by tcat.category_name, tc.customer_name
+			order by dollar_value desc;
+			
+			EndTime := clock_timestamp ();
+			Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM StartTime)));
+			RAISE NOTICE 'Duration of query 6 in millisecs=%' , Delta;
+			
+			Delta := round (1000 * (extract (EPOCH FROM EndTime) - extract (EPOCH FROM Query1StartTime)));
+			RAISE NOTICE 'Duration of all queries combined in millisecs=%' , Delta;
+			
    END;
    $$
    LANGUAGE plpgsql;
