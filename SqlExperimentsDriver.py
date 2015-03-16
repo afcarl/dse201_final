@@ -5,9 +5,10 @@ Created on Mar 15, 2015
 '''
 
 from multiprocessing import Process, Value
+import os
 import time
 import traceback
-import psycopg2
+import pg8000 
 
 class StatementExecutorTemplateCallback:
     def __init__(self):
@@ -62,7 +63,7 @@ class StatementExecutorTemplate:
         conn = None
         cur = None
         try:
-            conn = psycopg2.connect(database=self._mDbName, user=self._mUsername, password=self._mPassword, host=self._mHostname, port=self._mPort)
+            conn = pg8000.connect(database=self._mDbName, user=self._mUsername, password=self._mPassword, host=self._mHostname, port=self._mPort)
             cur = conn.cursor()
             l_wrapped_callback = ManagedExecutorTemplateCallback(callback)
             duration = l_wrapped_callback.do_in_cursor(cur)
@@ -105,7 +106,7 @@ class InternalTotalSalesForAGivenCustomerCallback(StatementExecutorTemplateCallb
         statement = """
         SELECT products.sku as product_sku, sum(sales.quantity) as quantity_sold, sum(sales.price) as dollar_value
         FROM sales, products, users
-        WHERE   users.name = 'user_1' AND
+        WHERE   users.name = 'user_1000' AND
                 sales.uid = users.id AND
                 products.id = sales.pid
         GROUP BY products.sku
@@ -168,10 +169,11 @@ class InternalTotalSalesForTop20CategoriesAndCustomersCallback(StatementExecutor
         return statement
 
 if __name__ == '__main__':
-    db_name = 'dyerke'
-    username = 'dyerke'
-    password = 'dyerke'
-    hostname = 'localhost'
+    db_name = 'dse201'
+    username = 'ec2user'
+    password = 'ec2user'
+    #hostname = 'ec2-54-68-182-118.us-west-2.compute.amazonaws.com'
+    hostname = 'ip-172-31-37-65'
     port = 5432
     
     
@@ -183,7 +185,10 @@ if __name__ == '__main__':
         InternalTotalSalesForEachCategoryAndStateCallback,
         InternalTotalSalesForTop20CategoriesAndCustomersCallback 
     ]
+    clear_cache_script_name= './clear_cache.sh'
     for c in callbacks:
+        print "Invoking script {}".format(clear_cache_script_name)
+        os.system(clear_cache_script_name)
         l_callback = c()
         template.execute(l_callback)
         print '\n'
