@@ -99,7 +99,7 @@ AS
 			
 			PERFORM  *
 			FROM pcustomer_product
-			WHERE pcustomer_product.customer_name = 'user_1000'
+			WHERE pcustomer_product.customer_name = 'user_1001'
 			ORDER BY dollar_value DESC;
 			
 			EndTime := clock_timestamp ();
